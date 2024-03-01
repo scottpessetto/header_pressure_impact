@@ -19,9 +19,3 @@ def process_tests(file):
     output["WtDate"] = pd.to_datetime(output["WtDate"])
 
     return output
-
-
-out = process_tests("Well Test 2-29-24.csv")
-print(out)
-
-out.to_pickle("well_tests.pkl")
