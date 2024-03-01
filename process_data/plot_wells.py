@@ -143,6 +143,31 @@ def plot_bhp_vs_headerp(well_dfs):
     return coefficients_df
 
 
+def plot_whp_vs_liquid(well_dfs, tests):
+    # Initialize a DataFrame to store the coefficients
+    coefficients_list = []
+
+    tests["WtDate"] = tests["WtDate"].dt.tz_localize(None)
+
+    # well dfs, just informs what to plot
+    for well, df in well_dfs.items():
+        plt.figure(figsize=(10, 5))
+        test_data = tests[(tests["well"] == well) & (tests["WtDate"].between(df.index.min(), df.index.max()))]
+
+        if not test_data.empty:
+            plt.scatter(test_data["TubingPress"], test_data["WtTotalFluid"])
+
+        plt.title(f"Data for Well: {well}")
+        plt.xlabel("wellhead pressure during test")
+        plt.ylabel("Total Fluid")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig(f"plots/{well}_whp_liq.png")  # Save the plot as a PNG file
+        # plt.show()
+        plt.close()
+
+
 # Load the well dataframes from the pickle file
 print("  ")
 print("start")
@@ -157,5 +182,6 @@ coefficients_df = plot_bhp_vs_headerp(well_dfs)
 coefficients_df.to_csv("well_coefficients.csv", index=False)
 
 plot_liquid_rate(well_dfs, tests)
+plot_whp_vs_liquid(well_dfs, tests)
 
 print("complete")

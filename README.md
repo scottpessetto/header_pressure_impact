@@ -9,4 +9,4 @@
 3) Estimate impact of BHP changes
 
 
-Run pull_tags then process then plot_wells
+Run pull_tags then process then then welltets,  plot_wells
