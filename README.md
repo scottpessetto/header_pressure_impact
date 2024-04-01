@@ -9,4 +9,6 @@
 3) Estimate impact of BHP changes
 
 
-Run pull_tags then process then then welltets,  plot_wells
+Run pull_tags then process then then welltests,  plot_wells
+
+bhp_dict.csv in the pull_data folder has the tags for each JP, headerP represents the pad level

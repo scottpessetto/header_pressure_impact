@@ -205,3 +205,67 @@ def plot_whp_vs_liquid(well_dfs, tests):
         plt.savefig(f"plots/{well}_whp_liq.png")  # Save the plot as a PNG file
         # plt.show()
         plt.close()
+
+
+def plot_grid_BHP_WHP(well_dfs):
+    # Determine the number of rows and columns for the subplot grid
+
+    filtered_well_dfs = {}
+    for well, df in well_dfs.items():
+        if "BHP" in df.columns and "HeaderP" in df.columns:
+            # Drop points with BHP equal to 0
+            df = df[(df["BHP"] != 0)]
+
+            # Check if the DataFrame still has points after dropping BHP=0
+            if not df.empty:
+                filtered_well_dfs[well] = df
+
+    well_dfs = filtered_well_dfs.copy()
+
+    num_wells = len(well_dfs)
+    num_columns = int(math.ceil(math.sqrt(num_wells)))
+    num_rows = int(math.ceil(num_wells / num_columns))
+
+    # Create a figure with subplots
+    fig, axs = plt.subplots(num_rows, num_columns, figsize=(num_columns * 7, num_rows * 5))
+    axs = axs.flatten()  # Flatten the array to make it easier to iterate over
+
+    # Iterate over the well DataFrames and their corresponding axes
+    for i, (well, df) in enumerate(well_dfs.items()):
+        if "BHP" in df.columns and "HeaderP" in df.columns:
+            ax = axs[i]
+
+            latest_date = df.index.max()
+            days_since = (latest_date - df.index).days
+
+            scatter = ax.scatter(df["BHP"], df["HeaderP"], c=days_since, cmap="viridis")
+
+            # Add a unit slope line to the plot
+            # min_val = min(df["BHP"].min(), df["HeaderP"].min())
+            # max_val = max(df["BHP"].max(), df["HeaderP"].max())
+            # ax.plot([min_val, max_val], [min_val, max_val], color="red", linestyle="--", linewidth=1)
+
+            ax.set_title(f"Data for Well: {well}")
+            ax.set_xlabel("BHP")
+            ax.set_ylabel("Header Pressure")
+            ax.legend()
+            ax.grid(True)
+
+            cbar = plt.colorbar(scatter, ax=ax)
+            cbar.set_label("Days Since Data Point")
+
+    # If there are any leftover subplots, turn them off
+    for j in range(i + 1, len(axs)):
+        axs[j].axis("off")
+
+    # Adjust the layout so that plots do not overlap
+    plt.tight_layout()
+
+    # Save the entire grid plot as a PNG file
+    plt.savefig("plots/well_data_grid_plotBHPWHP.png")
+
+    # Optionally, display the plot
+    # plt.show()
+
+    # Close the plot to free up memory
+    plt.close(fig)

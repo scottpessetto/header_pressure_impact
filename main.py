@@ -3,6 +3,61 @@ import pandas as pd
 from process_data import plot_wells, process, welltests
 from pull_data import pull_tags
 
+# jps with gauges and online as of 4-1-24
+all_jps = [
+    "MPB-28",
+    "MPB-30",
+    "MPB-32",
+    "MPB-35",
+    "MPB-37",
+    "MPB-39",
+    "MPC-23",
+    "MPE-19",
+    "MPE-24",
+    "MPE-31",
+    "MPE-35",
+    "MPE-37",
+    "MPE-41",
+    "MPE-42",
+    "MPS-05",
+    "MPS-17",
+    "MPS-22",
+    "MPS-45",
+    "MPS-57",
+    "MPG-16",
+    "MPG-18",
+    "MPH-19",
+    "MPI-15",
+    "MPI-17",
+    "MPI-27",
+    "MPI-29",
+    "MPI-31",
+    "MPI-33",
+    "MPI-36",
+    "MPI-40",
+    "MPJ-27",
+    "MPF-73",
+    "MPF-107",
+    "MPM-10",
+    "MPM-12",
+    "MPM-14",
+    "MPM-16",
+    "MPM-18",
+    "MPM-20",
+    "MPM-22",
+    "MPM-24",
+    "MPM-26",
+    "MPM-28",
+    "MPM-30",
+    "MPM-32",
+    "MPM-34",
+    "MPM-43",
+    "MPM-45",
+    "MPM-60",
+    "MPM-62",
+    "MPM-64",
+]
+
 tract14 = [
     "MPG-02",
     "MPG-14",
@@ -91,9 +146,10 @@ f_and_l = [
     "MPL-20",
 ]
 
-well_list = tract14
+well_list = all_jps
 
 # pull scada data
+# IF A TAG IS MISSING IT WILL ERROR OUT THE PROGRAM AND TAKE YOU 30 minutes to find out its a missing tag for a well
 tag_dict = pull_tags.gen_tag_dict()
 tag_list = pull_tags.get_tags(well_list, tag_dict)
 raw_data = pull_tags.query_tag(tag_list)
@@ -114,9 +170,11 @@ tests.to_pickle("well_tests.pkl")
 well_dfs = plot_wells.load_well_dataframes("well_dataframes.pkl")
 tests = pd.read_pickle("well_tests.pkl")
 
-plot_wells.plot_grid(well_dfs)
+plot_wells.plot_grid_BHP_WHP(well_dfs)
+
 # plot_wells.plot_wells(well_dfs)
 # coefficients_df = plot_wells.plot_bhp_vs_headerp(well_dfs)
+# coefficients_df = plot_wells.plot_bhp_vs_headerpGRID(well_dfs)
 # coefficients_df.to_csv("well_coefficients.csv", index=False)
 # plot_wells.plot_liquid_rate(well_dfs, tests)
 # plot_wells.plot_liquid_rate2(well_dfs, tests)

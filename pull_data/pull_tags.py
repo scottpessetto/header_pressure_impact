@@ -29,6 +29,7 @@ def get_tags(wells, dict):
 
 def query_tag(tags):
     tag_list = tags
+    raw = None
     try:
         connection = sql.connect(
             server_hostname="dbc-42b811e2-2a82.cloud.databricks.com",
@@ -50,7 +51,7 @@ def query_tag(tags):
         FROM
         historian.ns.measurements
         where tag in ({tag_list_str})
-        and LocalDate > '2024-2-1'
+        and LocalDate > '2024-3-1'
         GROUP BY
         time_interval_start,
         tag
