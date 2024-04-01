@@ -1,5 +1,6 @@
 # plot_wells.py
 
+import math
 import pickle
 
 import matplotlib.pyplot as plt
@@ -27,6 +28,44 @@ def plot_wells(well_dfs):
         plt.savefig(f"plots/{well}_plot.png")  # Save the plot as a PNG file
         # plt.show()
         plt.close()
+
+
+def plot_grid(well_dfs):
+    # Determine the number of rows and columns for the subplot grid
+    num_wells = len(well_dfs)
+    num_columns = int(math.ceil(math.sqrt(num_wells)))
+    num_rows = int(math.ceil(num_wells / num_columns))
+
+    # Create a figure with subplots
+    fig, axs = plt.subplots(num_rows, num_columns, figsize=(num_columns * 7, num_rows * 5))
+    axs = axs.flatten()  # Flatten the array to make it easier to iterate over
+
+    # Iterate over the well DataFrames and their corresponding axes
+    for i, (well, df) in enumerate(well_dfs.items()):
+        ax = axs[i]
+        for column in df.columns:
+            ax.plot(df.index, df[column], label=column)
+        ax.set_title(f"Data for Well: {well}")
+        ax.set_xlabel("Datetime")
+        ax.set_ylabel("Value")
+        ax.legend()
+        ax.grid(True)
+
+    # If there are any leftover subplots, turn them off
+    for j in range(i + 1, len(axs)):
+        axs[j].axis("off")
+
+    # Adjust the layout so that plots do not overlap
+    plt.tight_layout()
+
+    # Save the entire grid plot as a PNG file
+    plt.savefig("plots/well_data_grid_plot.png")
+
+    # Optionally, display the plot
+    # plt.show()
+
+    # Close the plot to free up memory
+    plt.close(fig)
 
 
 def plot_liquid_rate(well_dfs, tests):
