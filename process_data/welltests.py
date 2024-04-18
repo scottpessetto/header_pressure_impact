@@ -1,43 +1,62 @@
-from pathlib import Path
-
 import pandas as pd
 
 
-def process_tests(file: Path) -> pd.DataFrame:
-    """
-    Processes a CSV file containing well test data, cleans and formats the data.
+class FDCProcessor:
+    def __init__(self, test_path):
+        self.test_path = test_path
 
-    This function reads a CSV file, extracts and formats well names, converts date strings to datetime objects,
-    and cleans numeric data fields by removing commas and converting them to numeric types, handling missing values.
+        self.latest_entries = None
 
-    Args:
-        file (Path): The file path to the CSV file containing the test data.
+    def get_welltests(self):
+        # Read the CSV file into a DataFrame
+        df = pd.read_csv(self.test_path)
 
-    Returns:
-        pd.DataFrame: A DataFrame with cleaned and formatted well test data including columns for well name,
-                      test date, total fluid, and tubing pressure.
+        # Ensure that 'WtDate' is a datetime type for proper comparison
+        df["WtDate"] = pd.to_datetime(df["WtDate"])
 
-    """
-    df = pd.read_csv(file)
+        # Sort the DataFrame by 'EntName1' and 'WtDate' to ensure the latest dates are last
+        df = df.sort_values(by=["EntName1", "WtDate"])
 
-    df["WtDate"] = pd.to_datetime(df["WtDate"])
-    df["well"] = df["EntName1"].str.extract(r"(\w+-\d+)")
-    df["well"] = df["well"].str.replace(r"-(0)(?=\d+)", "-", regex=True)
-    df["well"] = "MP" + df["well"].astype(str)
+        # latest_entries["well"] = latest_entries["EntName1"].str[3:9]
+        # Extract the well name and remove any trailing letters
+        df["well"] = df["EntName1"].str.extract(r"(\w+-\d+)")
 
-    output = df[["well", "WtDate", "WtTotalFluid", "TubingPress"]]
-    for column in ["WtTotalFluid", "TubingPress"]:
-        output[column] = output[column].str.replace(",", "").fillna(0).astype(float)
+        # Remove the leading zeros
+        df["well"] = df["well"].str.replace(r"-(0)(?=\d+)", "-", regex=True)
+        df["well"] = "MP" + df["well"]
 
-    return output
+        df = df.drop(
+            [
+                "BHP",
+                "RouteGroupName",
+                "EntName1",
+                "WtHours",
+                "Choke",
+                "ChangeUser",
+                "Textbox29",
+                "WtSeparatorTemp",
+                "WtLinePressVal",
+                "WtEspFrequency",
+                "Textbox26",
+                "WtEspAmps",
+                "WtWaterCutShakeout",
+                "SolidsPct",
+            ],
+            axis=1,
+        )
+        for column in [
+            "IA",
+            "WtOilVol",
+            "WtGasVol",
+            "WtGasRate",
+            "WtGasLiftVol",
+            "WtWaterVol",
+            "WtrLift",
+            "WtTotalFluid",
+        ]:
+            df[column] = df[column].str.replace(",", "").fillna(0).astype(float)
 
+        # Store the result in the instance variable
+        # df = df[df["well"] == well]
 
-"""
-    output["WtTotalFluid"] = output["WtTotalFluid"].str.replace(",", "").fillna(0)
-    output["WtTotalFluid"] = pd.to_numeric(output["WtTotalFluid"], errors="coerce").fillna(0)
-    output["TubingPress"] = output["TubingPress"].str.replace(",", "").fillna(0)
-    output["TubingPress"] = pd.to_numeric(output["TubingPress"], errors="coerce").fillna(0)
-    output["WtDate"] = pd.to_datetime(output["WtDate"])
-
-    return output
-"""
+        return df
