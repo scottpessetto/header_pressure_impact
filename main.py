@@ -28,7 +28,7 @@ raw_scada_data = pull_tags.query_tag_WT_average(tag_list, tag_dict)
 
 
 # process tests
-test_path = "Well Test 3-22-24.csv"
+test_path = "Well Test 2month 4-18-24.csv"
 test_processor = welltests.FDCProcessor(test_path)
 well_specific_tests = test_processor.get_welltests()
 
