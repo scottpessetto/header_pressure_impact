@@ -163,7 +163,7 @@ def query_tag_WT_average(
     return well_dfs
 
 
-def query_tag(tags: Dict[str, List[str]]) -> Optional[pd.DataFrame]:
+def query_tag(tags: Dict[str, List[str]], start_date: str) -> Optional[pd.DataFrame]:
     """
     Executes a SQL query to retrieve average values of specified tags over time intervals from a historian database.
 
@@ -173,6 +173,7 @@ def query_tag(tags: Dict[str, List[str]]) -> Optional[pd.DataFrame]:
 
     Args:
         tags (Dict[str, List[str]]): A dictionary where keys are tag categories and values are lists of tag strings.
+        start_date : Cutoff for scada data. All data pulled will be after this date.
 
     Returns:
         Optional[pd.DataFrame]: A DataFrame containing the time intervals, tags, and their average values.
@@ -201,13 +202,13 @@ def query_tag(tags: Dict[str, List[str]]) -> Optional[pd.DataFrame]:
         query = f"""
         SELECT
         -- Convert the timestamp to an hour interval
-        CAST(FLOOR(CAST(LocalTime AS BIGINT) / 3600) * 3600 AS TIMESTAMP) AS time_interval_start,
+        CAST(FLOOR(CAST(LocalTime AS BIGINT) / 300) * 300 AS TIMESTAMP) AS time_interval_start,
         tag,
         AVG(value) AS average_value
         FROM
         historian.ns.measurements
         where tag in ({tag_list_str})
-        and LocalDate > '2024-3-1'
+        and LocalDate > '{start_date}'
         GROUP BY
         time_interval_start,
         tag

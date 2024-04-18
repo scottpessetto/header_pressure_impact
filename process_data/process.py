@@ -4,7 +4,7 @@ from typing import Dict, Tuple
 import pandas as pd
 
 
-def proc_scada(pkl_path: str, tag_dict: Dict[str, Tuple[str, str, str]]) -> None:
+def proc_scada(raw_data, tag_dict: Dict[str, Tuple[str, str, str]]):
     """
     Processes SCADA data from a pickle file, filters and pivots it based on tags from tag_dict,
     and saves the processed dataframes to a pickle file.
@@ -18,7 +18,7 @@ def proc_scada(pkl_path: str, tag_dict: Dict[str, Tuple[str, str, str]]) -> None
         None: This function does not return anything but saves the processed dataframes to 'well_dataframes.pkl'.
     """
     try:
-        raw_data = pd.read_pickle(pkl_path)
+        # raw_data = pd.read_pickle(pkl_path)
         data_copy = raw_data.copy()
         data_copy["datetime"] = pd.to_datetime(data_copy["datetime"])
 
@@ -32,7 +32,6 @@ def proc_scada(pkl_path: str, tag_dict: Dict[str, Tuple[str, str, str]]) -> None
                 pivoted_data.rename(columns=column_mapping, inplace=True)
                 well_dataframes[well_name] = pivoted_data
 
-        with open("well_dataframes.pkl", "wb") as file:
-            pickle.dump(well_dataframes, file, protocol=pickle.HIGHEST_PROTOCOL)
+        return well_dataframes
     except Exception as e:
         print(f"An error occurred: {e}")
