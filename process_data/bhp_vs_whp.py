@@ -1,5 +1,5 @@
 import math
-import pickle
+from typing import Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -61,67 +61,79 @@ def plot_bhp_vs_headerp(well_dfs):
     return coefficients_df
 
 
-def plot_grid_BHP_WHP(well_dfs):
-    # Determine the number of rows and columns for the subplot grid
+def plot_grid_BHP_WHP(well_dfs, median_coefficients):
+    """
+    Plots a grid of BHP vs WHP for each well and overlays a trend line using median coefficients.
 
+    Args:
+        well_dfs (dict): Dictionary with well identifiers as keys and their data as pandas DataFrames.
+        median_coefficients (pd.DataFrame): DataFrame containing the median slope and intercept for each well.
+
+    Saves:
+        PNG file: Grid plot saved as a PNG file in a directory named 'plots'.
+    """
     filtered_well_dfs = {}
     for well, df in well_dfs.items():
         if "BHP" in df.columns and "WHP" in df.columns:
-            # Drop points with BHP equal to 0
             df = df[(df["BHP"] != 0)]
-
-            # Check if the DataFrame still has points after dropping BHP=0
             if not df.empty:
                 filtered_well_dfs[well] = df
 
     well_dfs = filtered_well_dfs.copy()
-
     num_wells = len(well_dfs)
     num_columns = int(math.ceil(math.sqrt(num_wells)))
     num_rows = int(math.ceil(num_wells / num_columns))
 
-    # Create a figure with subplots
     fig, axs = plt.subplots(num_rows, num_columns, figsize=(num_columns * 7, num_rows * 5))
-    axs = axs.flatten()  # Flatten the array to make it easier to iterate over
+    axs = axs.flatten()
 
-    # Iterate over the well DataFrames and their corresponding axes
     for i, (well, df) in enumerate(well_dfs.items()):
-        if "BHP" in df.columns and "WHP" in df.columns:
-            ax = axs[i]
+        ax = axs[i]
+        if well in median_coefficients.index:
+            slope = median_coefficients.loc[well, "Median Slope"]
+            intercept = median_coefficients.loc[well, "Median Intercept"]
 
-            latest_date = df.index.max()
-            days_since = (latest_date - df.index).days
+            # Calculate the trend line using the median slope and intercept
+            x_values = np.linspace(df["BHP"].min(), df["BHP"].max(), 100)
+            trendline = slope * x_values + intercept
 
-            scatter = ax.scatter(df["BHP"], df["WHP"], c=days_since, cmap="viridis")
+            ax.plot(x_values, trendline, color="red", label=f"Mean trend line (y={slope:.2f}x+{intercept:.2f})")
 
-            ax.set_title(f"Data for Well: {well}")
-            ax.set_xlabel("BHP")
-            ax.set_ylabel("Wellhead Pressure")
-            ax.legend()
-            ax.grid(True)
+        scatter = ax.scatter(df["BHP"], df["WHP"], c=(df.index.max() - df.index).days, cmap="viridis")
+        ax.set_title(f"Data for Well: {well}")
+        ax.set_xlabel("BHP")
+        ax.set_ylabel("Wellhead Pressure")
+        ax.legend()
+        ax.grid(True)
 
-            cbar = plt.colorbar(scatter, ax=ax)
-            cbar.set_label("Days Since Data Point")
+        cbar = plt.colorbar(scatter, ax=ax)
+        cbar.set_label("Days Since Data Point")
 
-    # If there are any leftover subplots, turn them off
     for j in range(i + 1, len(axs)):
         axs[j].axis("off")
 
-    # Adjust the layout so that plots do not overlap
     plt.tight_layout()
-
-    # Save the entire grid plot as a PNG file
     plt.savefig("plots/well_data_grid_plotBHPWHP.png")
-
-    # Optionally, display the plot
-    # plt.show()
-
-    # Close the plot to free up memory
     plt.close(fig)
 
 
-def plot_grid_BHP_WHP_dailyFIT(well_dfs):
+def plot_grid_BHP_WHP_dailyFIT(well_dfs: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """
+    Plots daily BHP vs WHP data for multiple wells and fits a linear regression model to each day's data.
+    Additionally, it collects the coefficients of the fitted models.
+
+    Args:
+        well_dfs (Dict[str, pd.DataFrame]): A dictionary where keys are well names and values are DataFrames
+                                            containing BHP and WHP data along with dates.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the well names, dates, slopes, and intercepts of the fitted models.
+
+    Raises:
+        ValueError: If any DataFrame is empty after filtering or does not contain the required columns.
+    """
     filtered_well_dfs = {}
+    coefficients_list = []
     for well, df in well_dfs.items():
         if "BHP" in df.columns and "WHP" in df.columns:
             df = df[(df["BHP"] != 0)]
@@ -152,11 +164,13 @@ def plot_grid_BHP_WHP_dailyFIT(well_dfs):
                 y_pred = slope * x_range + intercept
                 ax.plot(x_range, y_pred, label=f'Trend for {date.strftime("%Y-%m-%d")}')
 
+                coefficients_list.append({"Well": well, "Date": date, "Slope": slope, "Intercept": intercept})
+
         scatter = ax.scatter(df["BHP"], df["WHP"], c=pd.to_datetime(df["Date"]).astype("int64"), cmap="viridis")
         ax.set_title(f"Data for Well: {well}")
         ax.set_xlabel("BHP")
         ax.set_ylabel("Wellhead Pressure")
-        ax.legend()
+        # ax.legend()
         ax.grid(True)
 
         cbar = plt.colorbar(scatter, ax=ax)
@@ -168,3 +182,6 @@ def plot_grid_BHP_WHP_dailyFIT(well_dfs):
     plt.tight_layout()
     plt.savefig("plots/well_data_grid_plotBHPWHP_dailyfit.png")
     plt.close(fig)
+
+    coefficients_df = pd.DataFrame(coefficients_list)
+    return coefficients_df
