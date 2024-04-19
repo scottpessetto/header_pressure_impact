@@ -1,6 +1,7 @@
 import pandas as pd
 
 from process_data import (
+    bhp_liq,
     bhp_vs_whp,
     calc_PI_RP,
     coeffs_process,
@@ -35,7 +36,7 @@ processed_coeffs.to_csv(r"results\processed_coeffs.csv")
 bhp_vs_whp.plot_grid_BHP_WHP(well_scada_data, processed_coeffs.set_index("Well"))
 
 # process tests
-test_path = r"fdc_test_data\Well Test 1month 4-18-24.csv"
+test_path = r"fdc_test_data\Well Test 6month 4-18-24.csv"
 test_processor = welltests.FDCProcessor(test_path)
 well_specific_tests = test_processor.get_welltests()
 merged_test_data = merge.merge_data(well_list, raw_scada_data, well_specific_tests)
@@ -43,9 +44,12 @@ merged_test_data.to_csv(r"results\merged_tests.csv")
 print(merged_test_data)
 
 
+# plot liquid rate vs bhp
+bhp_liq.plot_bhp_liquidrate(merged_test_data)
+
 # estimate reservoir pressure for PI
-rp_calc = calc_PI_RP.calc_optimal_RP(merged_test_data)
-rp_calc.to_csv(r"results\res pressure.csv")
+# rp_calc = calc_PI_RP.calc_optimal_RP(merged_test_data)
+# rp_calc.to_csv(r"results\res pressure.csv")
 
 
 """
