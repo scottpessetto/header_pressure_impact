@@ -44,35 +44,11 @@ merged_test_data.to_csv(r"results\merged_tests.csv")
 print(merged_test_data)
 
 
-# plot liquid rate vs bhp
-bhp_liq.plot_bhp_liquidrate(merged_test_data)
-
 # estimate reservoir pressure for PI
-# rp_calc = calc_PI_RP.calc_optimal_RP(merged_test_data)
-# rp_calc.to_csv(r"results\res pressure.csv")
+rp_calc = calc_PI_RP.calc_optimal_RP(merged_test_data)
+rp_calc.to_csv(r"results\res pressure.csv")
 
+# plot liquid rate vs bhp
+bhp_liq.plot_bhp_liquidrate(merged_test_data, rp_calc)
 
-"""
-# plot
-well_dfs = plot_wells.load_well_dataframes("well_dataframes.pkl")
-tests = pd.read_pickle("well_tests.pkl")
-
-plot_wells.plot_grid_BHP_HeaderP(well_dfs)
-
-# plot_wells.plot_grid_BHP_WHP(well_dfs)
-
-for well, df in well_dfs.items():
-    print(well)
-    print(df)
-
-print(tests)
-
-# plot_wells.plot_wells(well_dfs)
-# coefficients_df = plot_wells.plot_bhp_vs_headerp(well_dfs)
-# coefficients_df = plot_wells.plot_bhp_vs_headerpGRID(well_dfs)
-# coefficients_df.to_csv("well_coefficients.csv", index=False)
-# plot_wells.plot_liquid_rate(well_dfs, tests)
-# plot_wells.plot_liquid_rate2(well_dfs, tests)
-# plot_wells.plot_whp_vs_liquid(well_dfs, tests)
-"""
 print("fin")
