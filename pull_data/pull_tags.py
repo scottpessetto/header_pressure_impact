@@ -201,8 +201,8 @@ def query_tag(tags: Dict[str, List[str]], start_date: str) -> Optional[pd.DataFr
 
         query = f"""
         SELECT
-        -- Convert the timestamp to an hour interval
-        CAST(FLOOR(CAST(LocalTime AS BIGINT) / 300) * 300 AS TIMESTAMP) AS time_interval_start,
+        -- Convert the timestamp to an interval (300 is 5 min, 3600 is hour)
+        CAST(FLOOR(CAST(LocalTime AS BIGINT) / 3600) * 3600 AS TIMESTAMP) AS time_interval_start,
         tag,
         AVG(value) AS average_value
         FROM

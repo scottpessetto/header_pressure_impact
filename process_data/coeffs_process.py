@@ -27,6 +27,8 @@ def process_group(group: pd.DataFrame) -> pd.Series:
     """
     Helper function to process each group: filters, sorts, and calculates medians.
 
+    Mean slope is the most accurate to use for the wells
+
     Args:
         group (pd.DataFrame): The DataFrame group for a single well.
 
@@ -34,7 +36,8 @@ def process_group(group: pd.DataFrame) -> pd.Series:
         pd.Series: A Series containing the median slope and median intercept for the group.
     """
     # Filter out rows where Slope is less than 0
-    filtered_group = group[group["Slope"] >= 0]
+    filtered_group = group[group["Slope"] >= 0.9]
+    # filtered_group = group.copy()
 
     # Sort the group by 'Slope'
     sorted_group = filtered_group.sort_values(by="Slope")
@@ -42,7 +45,10 @@ def process_group(group: pd.DataFrame) -> pd.Series:
     # Calculate median slope and intercept
     # median_slope = sorted_group["Slope"].median()
     # median_intercept = sorted_group["Intercept"].median()
-    median_slope = sorted_group["Slope"].mean()
-    median_intercept = sorted_group["Intercept"].mean()
+    median_slope = sorted_group["Slope"].median()
+    median_intercept = sorted_group["Intercept"].median()
 
-    return pd.Series({"Median Slope": median_slope, "Median Intercept": median_intercept})
+    mean_slope = sorted_group["Slope"].mean()
+    mean_intercept = sorted_group["Intercept"].mean()
+
+    return pd.Series({"Mean Slope": mean_slope, "Mean Intercept": mean_intercept})

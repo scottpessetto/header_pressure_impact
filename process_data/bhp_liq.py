@@ -60,8 +60,8 @@ def plot_bhp_liquidrate(merged_test_scada, RP_guess):
 
             if len(well_data) > 1:
                 scatter = axs[index].scatter(
-                    well_data["BHP"],
                     well_data["WtTotalFluid"],
+                    well_data["BHP"],
                     c=well_data["days_since"],
                     alpha=0.5,
                     cmap="viridis",
@@ -75,7 +75,11 @@ def plot_bhp_liquidrate(merged_test_scada, RP_guess):
                 x_range = np.linspace(x.min(), x.max(), 100)
                 y_pred = slope * x_range + intercept
 
+                avg_fluid = well_data["WtTotalFluid"].mean()
+                avg_bhp = well_data["BHP"].mean()
+
                 vogel = InFlow(well_data["WtTotalFluid"].mean(), well_data["BHP"].mean(), optimal_res_p)
+                qmax = vogel.vogel_qmax(well_data["WtTotalFluid"].mean(), well_data["BHP"].mean(), optimal_res_p)
                 bhp_list = []
                 fluid_list = []
                 for i_bhp in range(0, int(res_p), 10):
@@ -86,13 +90,23 @@ def plot_bhp_liquidrate(merged_test_scada, RP_guess):
 
                 axs[index].plot(x_range, y_pred, color="red", linewidth=2)
 
-                equation = f"y = {slope:.2f}x + {intercept:.2f}"
-                axs[index].text(
-                    0.05, 0.95, equation, transform=axs[index].transAxes, fontsize=12, verticalalignment="top"
-                )
+                # equation = f"y = {slope:.2f}x + {intercept:.2f}"
 
-                # Store coefficients
-                coeffs_list.append({"Well": well, "Slope": slope, "Intercept": intercept})
+                vogel_text = f"Res_P: {optimal_res_p:.2f}, QMax: {qmax:.2f}"
+
+            axs[index].text(
+                0.05,
+                0.85,
+                vogel_text,
+                transform=axs[index].transAxes,
+                fontsize=12,
+                verticalalignment="top",
+            )
+
+            # Store coefficients
+            coeffs_list.append(
+                {"Well": well, "ResP": optimal_res_p, "QMax": qmax, "Avg_fluid": avg_fluid, "Avg_bhp": avg_bhp}
+            )
 
             axs[index].set_ylabel("Bottom Hole Pressure, psi")
             axs[index].set_xlabel("Total Fluid Rate, BPD")
