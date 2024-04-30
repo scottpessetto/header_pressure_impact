@@ -37,7 +37,7 @@ processed_daily_coeffs.to_csv(r"results\processed_daily_whp_bhp_coeffs.csv")
 bhp_vs_whp.plot_grid_BHP_WHP(well_scada_data, processed_daily_coeffs.set_index("Well"))
 
 # process tests
-test_path = r"fdc_test_data\Well Test 2month 4-18-24.csv"
+test_path = r"fdc_test_data\Well Test 2024.csv"
 test_processor = welltests.FDCProcessor(test_path)
 well_specific_tests = test_processor.get_welltests()
 merged_test_data = merge.merge_data(well_list, raw_scada_data, well_specific_tests)
@@ -50,6 +50,6 @@ rp_calc = calc_PI_RP.calc_optimal_RP(merged_test_data)
 rp_calc.to_csv(r"results\res pressure.csv")
 
 # plot liquid rate vs bhp
-vogel_coeffs = bhp_liq.plot_bhp_liquidrate(merged_test_data, rp_calc)
+vogel_coeffs = bhp_liq.plot_bhp_liquidrate(rp_calc)
 vogel_coeffs.to_csv(r"results\vogel_coeffs.csv")
 print("fin")

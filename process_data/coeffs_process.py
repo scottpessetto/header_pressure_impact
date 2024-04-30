@@ -48,7 +48,11 @@ def process_group(group: pd.DataFrame) -> pd.Series:
     median_slope = sorted_group["Slope"].median()
     median_intercept = sorted_group["Intercept"].median()
 
-    mean_slope = sorted_group["Slope"].mean()
-    mean_intercept = sorted_group["Intercept"].mean()
+    if sorted_group["Slope"].count() > 5:
+        mean_slope = sorted_group["Slope"].mean()
+        mean_intercept = sorted_group["Intercept"].mean()
+    else:
+        mean_slope = int(1000000)
+        mean_intercept = int(0)
 
     return pd.Series({"Mean Slope": mean_slope, "Mean Intercept": mean_intercept})

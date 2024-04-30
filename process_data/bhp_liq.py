@@ -24,6 +24,7 @@ def plot_bhp_liquidrate(merged_test_scada, RP_guess):
     df["days_since"] = (current_date - df["date"]).dt.days
 
     unique_wells = df["well"].unique()
+    unique_wells.sort()
     num_wells = len(unique_wells)
     num_columns = int(math.ceil(math.sqrt(num_wells)))
     num_rows = int(math.ceil(num_wells / num_columns))
