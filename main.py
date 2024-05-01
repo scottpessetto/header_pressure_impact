@@ -50,6 +50,11 @@ rp_calc = calc_PI_RP.calc_optimal_RP(merged_test_data)
 rp_calc.to_csv(r"results\res pressure.csv")
 
 # plot liquid rate vs bhp
-vogel_coeffs = bhp_liq.plot_bhp_liquidrate(rp_calc)
+vogel_coeffs = bhp_liq.plot_bhp_liquidrate(merged_test_data, rp_calc)
+
+test_coeffs, test_ipr_data = bhp_liq.plot_bhp_liquidrate_r2(rp_calc, resp_modifier=150)
+test_coeffs.to_csv(r"results\vogel_coeffs_test.csv")
+test_ipr_data.to_csv(r"results\ipr_data.csv")
+
 vogel_coeffs.to_csv(r"results\vogel_coeffs.csv")
 print("fin")
