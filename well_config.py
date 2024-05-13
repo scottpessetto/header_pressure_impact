@@ -142,7 +142,7 @@ f_and_l = [
     "MPL-20",
 ]
 
-all_wells_with_gauges = {
+all_wells_with_gauges = [
     "MPB-28",
     "MPB-30",
     "MPB-32",
@@ -304,4 +304,4 @@ all_wells_with_gauges = {
     "MPS-57",
     "MPS-90",
     "MPS-203",
-}
+]

@@ -1,10 +1,10 @@
 import pickle
-from typing import Dict, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 
 
-def proc_scada(raw_data, tag_dict: Dict[str, Tuple[str, str, str]]):
+def proc_scada(raw_data, tag_dict: Dict[str, List[str]]) -> Dict[str, pd.DataFrame]:
     """
     Processes SCADA data from a pickle file, filters and pivots it based on tags from tag_dict,
     and saves the processed dataframes to a pickle file.
@@ -35,3 +35,4 @@ def proc_scada(raw_data, tag_dict: Dict[str, Tuple[str, str, str]]):
         return well_dataframes
     except Exception as e:
         print(f"An error occurred: {e}")
+        return {}

@@ -137,11 +137,14 @@ def plot_grid_BHP_HeaderP_DailyFit(well_dfs: Dict[str, pd.DataFrame]) -> pd.Data
     """
     filtered_well_dfs = {}
     coefficients_list = []
+
     for well, df in well_dfs.items():
         if "BHP" in df.columns and "WHP" in df.columns:
             df = df[(df["BHP"] != 0)]
+            df = df.dropna(subset=["BHP"])
             if not df.empty:
-                filtered_well_dfs[well] = df
+                if len(df["BHP"]) > 5:
+                    filtered_well_dfs[well] = df
 
     well_dfs = filtered_well_dfs.copy()
     num_wells = len(well_dfs)
@@ -153,28 +156,38 @@ def plot_grid_BHP_HeaderP_DailyFit(well_dfs: Dict[str, pd.DataFrame]) -> pd.Data
 
     for i, (well, df) in enumerate(well_dfs.items()):
         ax = axs[i]
+        valid_slope_found = False
         # Assuming 'Date' is a column in df
         if "Date" not in df.columns:
             df["Date"] = df.index.date  # Convert index to date if necessary
 
+        empty_check = df.dropna(subset=["BHP", "WHP"])
+        if empty_check["BHP"].empty:
+            continue
+
         for date, group in df.groupby("Date"):
             group = group.dropna(subset=["BHP", "WHP"])  # Drop rows where BHP or WHP is NaN
+
             if len(group) > 1:  # Ensure there's enough data to fit the model
                 x = group["BHP"].values
                 y = group["HeaderP"].values
                 slope, intercept = np.polyfit(x, y, 1)
                 x_range = np.linspace(x.min(), x.max(), 10)
                 y_pred = slope * x_range + intercept
-                ax.plot(x_range, y_pred, label=f'Trend for {date.strftime("%Y-%m-%d")}')
 
-                coefficients_list.append({"Well": well, "Date": date, "Slope": slope, "Intercept": intercept})
+                if slope >= 0.9:
+                    ax.plot(x_range, y_pred, label=f'Trend for {date.strftime("%Y-%m-%d")}')
+                    valid_slope_found = True
+                    coefficients_list.append({"Well": well, "Date": date, "Slope": slope, "Intercept": intercept})
 
         scatter = ax.scatter(df["BHP"], df["HeaderP"], c=pd.to_datetime(df["Date"]).astype("int64"), cmap="viridis")
         ax.set_title(f"Data for Well: {well}")
-        ax.set_xlabel("BHP")
-        ax.set_ylabel("Header Pressure")
+        ax.set_xlabel("Bottom Hole Pressure, psi")
+        ax.set_ylabel("Well Head Pressure, psi")
         # ax.legend()
         ax.grid(True)
+        if not valid_slope_found:
+            coefficients_list.append({"Well": well, "Date": pd.NaT, "Slope": 1000000, "Intercept": np.nan})
 
         cbar = plt.colorbar(scatter, ax=ax)
         cbar.set_label("Date")

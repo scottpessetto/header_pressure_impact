@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def gen_tag_dict(dict_path: Path = Path("pull_data/bhp_dict.csv")) -> Dict[str, Tuple[str, str, str]]:
+def gen_tag_dict(dict_path: Path = Path("pull_data/bhp_dict.csv")) -> Dict[str, List[str]]:
     """
     Generates a dictionary mapping well names to their respective SCADA tags.
 
@@ -48,7 +48,7 @@ def gen_tag_dict(dict_path: Path = Path("pull_data/bhp_dict.csv")) -> Dict[str, 
         raise
 
 
-def get_tags(wells: List[str], tag_dict: Dict[str, List[str]]) -> Dict[str, Optional[List[str]]]:
+def get_tags(wells: List[str], tag_dict: Dict[str, List[str]]) -> Dict[str, List[str]]:
     """
     Retrieves tags for specified wells from a given dictionary.
 
@@ -71,9 +71,7 @@ def get_tags(wells: List[str], tag_dict: Dict[str, List[str]]) -> Dict[str, Opti
     return tags
 
 
-def query_tag_WT_average(
-    tags: Dict[str, List[str]], tag_dict: Dict[str, Tuple[str, str, str]]
-) -> Dict[str, pd.DataFrame]:
+def query_tag_WT_average(tags: Dict[str, List[str]], tag_dict: Dict[str, List[str]]) -> Dict[str, pd.DataFrame]:
     """
     Queries and processes time-weighted average values for specified tags over six-hour intervals. The
     goal is to return the highest 6 hour average to best capture the likely test time for a give test.

@@ -2,7 +2,7 @@ import pandas as pd
 from woffl.flow.inflow import InFlow
 
 
-def calculate_cumulative_error(group, pres):
+def calculate_cumulative_error(group: pd.DataFrame, pres: float) -> float:
     """
     Calculate the cumulative error between calculated and actual well flow rates.
     Using oil_flow for total liquid to avoid WC metering variability
@@ -30,7 +30,7 @@ def calculate_cumulative_error(group, pres):
     return cumulative_error
 
 
-def calc_optimal_RP(df):
+def calc_optimal_RP(df: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate the optimal reservoir pressure for each well and compute productivity index.
 
