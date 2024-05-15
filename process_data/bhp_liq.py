@@ -128,7 +128,7 @@ def plot_bhp_liquidrate(merged_test_scada, RP_guess):
         axs[i].axis("off")
 
     plt.tight_layout()
-    plt.savefig("plots/bhp_liq_grid.png")
+    plt.savefig("plots/B-pad bhp_liq_grid.png")
 
     coefficients_df = pd.DataFrame(coeffs_list)
     return coefficients_df
@@ -269,7 +269,7 @@ def plot_bhp_liquidrate_r2(RP_guess, resp_modifier):
         axs[i].axis("off")
 
     plt.tight_layout()
-    plt.savefig("plots/bhp_liq_grid_latest_test.png")
+    plt.savefig("plots/B-pad bhp_liq_grid_latest_test.png")
 
     coefficients_df = pd.DataFrame(coeffs_list)
     ipr_data = pd.DataFrame(ipr_list)
@@ -280,7 +280,7 @@ def plot_bhp_liquidrate_r2(RP_guess, resp_modifier):
     df_bhp_oldest = ipr_data.explode("BHP oldest").rename(columns={"BHP oldest": "BHP"})
     # df_bhp_lowest = ipr_data.explode("BHP lowest").rename(columns={"BHP lowest": "BHP_lowest"})
     # df_bhp_median = ipr_data.explode("BHP Median").rename(columns={"BHP Median": "BHP_median"})
-    df_fluid_oldest = ipr_data.explode("Fluid oldest").rename(columns={"Fluid oldest": "Fluid_oldest"})
+    df_fluid_oldest = ipr_data.explode("Fluid oldest").rename(columns={"Fluid oldest": "Fluid_newest"})
     df_fluid_lowest = ipr_data.explode("Fluid lowest bhp").rename(columns={"Fluid lowest bhp": "Fluid_lowest"})
     df_fluid_median = ipr_data.explode("Fluid Median BHP").rename(columns={"Fluid Median BHP": "Fluid_median"})
 
@@ -289,7 +289,7 @@ def plot_bhp_liquidrate_r2(RP_guess, resp_modifier):
     df_combined = pd.concat(
         [
             df_bhp_oldest[["well", "BHP"]],
-            df_fluid_oldest["Fluid_oldest"],
+            df_fluid_oldest["Fluid_newest"],
             df_fluid_lowest["Fluid_lowest"],
             df_fluid_median["Fluid_median"],
         ],

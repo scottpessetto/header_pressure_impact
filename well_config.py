@@ -305,3 +305,5 @@ all_wells_with_gauges = [
     "MPS-90",
     "MPS-203",
 ]
+
+B_pad_JPs = ["MPB-28", "MPB-30", "MPB-32", "MPB-35", "MPB-37", "MPB-39"]

@@ -30,12 +30,13 @@ def calculate_cumulative_error(group: pd.DataFrame, pres: float) -> float:
     return cumulative_error
 
 
-def calc_optimal_RP(df: pd.DataFrame) -> pd.DataFrame:
+def calc_optimal_RP(df: pd.DataFrame, max_pres: int = 5000) -> pd.DataFrame:
     """
     Calculate the optimal reservoir pressure for each well and compute productivity index.
 
     Args:
         df (pd.DataFrame): The DataFrame containing well data.
+        max_pres (int): Maximum allowable reservoir pressure.
 
     Returns:
         pd.DataFrame: The DataFrame with added columns for optimal reservoir pressure and productivity index.
@@ -54,7 +55,7 @@ def calc_optimal_RP(df: pd.DataFrame) -> pd.DataFrame:
         best_pres = None
 
         start_pres = max_bhp + 100
-        end_pres = 5000
+        end_pres = max_pres
 
         for pres in range(int(start_pres), end_pres, 10):
             error = calculate_cumulative_error(well_data, pres)

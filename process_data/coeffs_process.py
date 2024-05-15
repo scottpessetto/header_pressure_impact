@@ -33,10 +33,10 @@ def process_group(group: pd.DataFrame) -> pd.Series:
         group (pd.DataFrame): The DataFrame group for a single well.
 
     Returns:
-        pd.Series: A Series containing the median slope and median intercept for the group.
+        pd.Series: A Series containing the mean slope and mean intercept for the group.
     """
     # Filter out rows where Slope is less than 0
-    filtered_group = group[group["Slope"] >= 0.9]
+    filtered_group = group[group["Slope"] < 0.9]
     # filtered_group = group.copy()
 
     # Sort the group by 'Slope'

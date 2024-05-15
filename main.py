@@ -16,6 +16,7 @@ from pull_data import pull_tags
 from well_config import all_jps, all_wells_with_gauges, f_and_l, tract14
 
 well_list = ["MPB-28", "MPB-30"]
+max_rp = 1800
 
 # IF A TAG IS MISSING IT WILL ERROR OUT THE PROGRAM AND TAKE YOU 30 minutes to find out its a missing tag for a well
 tag_dict = pull_tags.gen_tag_dict()
@@ -52,7 +53,7 @@ print(merged_test_data)
 
 
 # estimate reservoir pressure for PI
-rp_calc = calc_PI_RP.calc_optimal_RP(merged_test_data)
+rp_calc = calc_PI_RP.calc_optimal_RP(merged_test_data, max_pres=max_rp)
 rp_calc.to_csv(r"results\res pressure.csv")
 
 # plot liquid rate vs bhp
