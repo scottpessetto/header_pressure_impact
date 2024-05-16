@@ -39,7 +39,14 @@ def interpolate_fluid_newest(well, bhp_value, ipr_df):
 
     print(bhp_value)
 
-    # Perform the interpolation
+    well_data["BHP"] = pd.to_numeric(well_data["BHP"], errors="coerce")
+    well_data["Fluid_newest"] = pd.to_numeric(well_data["Fluid_newest"], errors="coerce")
+
+    well_data = well_data.dropna(subset=["BHP", "Fluid_newest"])
+
+    if well_data.empty:
+        return np.nan
+
     interpolated_value = np.interp(bhp_value, well_data["BHP"], well_data["Fluid_newest"])
     print(interpolated_value, bhp_value)
 

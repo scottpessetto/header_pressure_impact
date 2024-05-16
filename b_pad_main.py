@@ -7,6 +7,7 @@ from process_data import (
     calc_PI_RP,
     coeffs_process,
     merge,
+    pf_oil_benefit,
     pf_press_rate,
     plot_jp,
     plot_wells,
@@ -67,5 +68,9 @@ bhp_lookup_table = pf_press_rate.bhp_lookup(processed_pf_bhp_coeffs)
 liq_lookup_table = pf_press_rate.assign_liquid_rate(test_ipr_data, bhp_lookup_table)
 
 liq_lookup_table.to_csv(r"results\PF_bhp_lookup_table.csv")
+
+# Now assign watercut and calculate associated oil rate
+rate_lookup_table = pf_oil_benefit.calc_oil_rate(liq_lookup_table, merged_test_data)
+rate_lookup_table.to_csv(r"results\PF_rate_lookup_table.csv")
 
 print("fin")
