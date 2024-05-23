@@ -54,7 +54,7 @@ def plot_grid_bhp_vs_pf_pres(well_dfs: Dict[str, pd.DataFrame]):
     plt.close(fig)
 
 
-def plot_grid_BHP_PF_Pres_DailyFit(well_dfs: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def plot_grid_BHP_PF_Pres_DailyFit(well_dfs: Dict[str, pd.DataFrame], filename: str) -> pd.DataFrame:
     """
     Plots daily BHP vs Power Pressure data for multiple wells and fits a linear regression model to each day's data.
     Additionally, it collects the coefficients of the fitted models.
@@ -130,7 +130,7 @@ def plot_grid_BHP_PF_Pres_DailyFit(well_dfs: Dict[str, pd.DataFrame]) -> pd.Data
         axs[j].axis("off")
 
     plt.tight_layout()
-    plt.savefig("plots/well_data_grid_plotBHP_PFPres_dailyfit.png")
+    plt.savefig(filename)
     plt.close(fig)
 
     coefficients_df = pd.DataFrame(coefficients_list)

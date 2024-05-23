@@ -15,7 +15,7 @@ from pull_data import pull_tags
 # well config stores list of wells to analyze
 from well_config import all_jps, all_wells_with_gauges, f_and_l, tract14
 
-well_list = ["MPB-28", "MPB-30"]
+well_list = tract14
 max_rp = 1800
 
 # IF A TAG IS MISSING IT WILL ERROR OUT THE PROGRAM AND TAKE YOU 30 minutes to find out its a missing tag for a well
@@ -59,7 +59,7 @@ rp_calc.to_csv(r"results\res pressure.csv")
 # plot liquid rate vs bhp
 vogel_coeffs = bhp_liq.plot_bhp_liquidrate(merged_test_data, rp_calc)
 
-test_coeffs, test_ipr_data = bhp_liq.plot_bhp_liquidrate_r2(rp_calc, resp_modifier=150)
+test_coeffs, test_ipr_data = bhp_liq.plot_bhp_liquidrate_r2(rp_calc, resp_modifier=150, filename="plots/t14_graphs.png")
 test_coeffs.to_csv(r"results\vogel_coeffs_test.csv")
 test_ipr_data.to_csv(r"results\ipr_data.csv")
 

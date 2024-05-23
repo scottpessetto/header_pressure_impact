@@ -1,5 +1,6 @@
-from typing import Any
+from typing import Any, Tuple
 
+import matplotlib.pyplot as plt
 import pandas as pd
 
 
@@ -19,7 +20,7 @@ def mean_of_interquartile_range(series: pd.Series) -> float:
     return iqr_data.mean()
 
 
-def calc_oil_rate(liq_lookup_table: pd.DataFrame, test_data: pd.DataFrame) -> pd.DataFrame:
+def calc_oil_rate(liq_lookup_table: pd.DataFrame, test_data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Pivot the test data to return average values of the test after removing top and bottom quartile.
     Merge the average well test data into the lookup table and calculate the oil rate.
@@ -42,8 +43,51 @@ def calc_oil_rate(liq_lookup_table: pd.DataFrame, test_data: pd.DataFrame) -> pd
 
     updated_liq_lookup_table = pd.merge(liq_lookup_table, avgeraged_data, how="left", left_on="Well", right_on="well")
 
-    updated_liq_lookup_table["Oil Predicted"] = (
+    updated_liq_lookup_table["Oil_newest_ipr"] = (
         updated_liq_lookup_table["Fluid_newest_interpolated"] * (100 - updated_liq_lookup_table["WtWaterCut"]) / 100
     )
 
-    return updated_liq_lookup_table
+    updated_liq_lookup_table["Oil_lowest_ipr"] = (
+        updated_liq_lookup_table["Fluid_lowest_interpolated"] * (100 - updated_liq_lookup_table["WtWaterCut"]) / 100
+    )
+
+    updated_liq_lookup_table["Oil_median_ipr"] = (
+        updated_liq_lookup_table["Fluid_median_interpolated"] * (100 - updated_liq_lookup_table["WtWaterCut"]) / 100
+    )
+
+    sum_df = updated_liq_lookup_table[["pf_pres", "Oil_newest_ipr", "Oil_lowest_ipr", "Oil_median_ipr"]]
+
+    summed_df = sum_df.groupby("pf_pres").sum().reset_index()
+
+    return updated_liq_lookup_table, summed_df
+
+
+def plot_oil_rates(summed_df: pd.DataFrame):
+    """
+    Plot the oil rates against pf_pres.
+
+    Args:
+        summed_df (pd.DataFrame): DataFrame with summed oil rates and pf_pres.
+    """
+    fig, axs = plt.subplots(1, 3, figsize=(20, 5))
+
+    axs[0].plot(summed_df["pf_pres"], summed_df["Oil_newest_ipr"], marker="o")
+    axs[0].set_title("PF Pressure vs Newest BHP IPR")
+    axs[0].set_xlabel("Power Fluid Pressure, psi")
+    axs[0].set_ylabel("Oil Rate, bopd")
+    axs[0].grid(True)
+
+    axs[1].plot(summed_df["pf_pres"], summed_df["Oil_lowest_ipr"], marker="o")
+    axs[1].set_title("PF Pressure vs Lowest BHP IPR")
+    axs[1].set_xlabel("Power Fluid Pressure, psi")
+    axs[1].set_ylabel("Oil Rate, bopd")
+    axs[1].grid(True)
+
+    axs[2].plot(summed_df["pf_pres"], summed_df["Oil_median_ipr"], marker="o")
+    axs[2].set_title("PF Pressure vs Median BHP IPR")
+    axs[2].set_xlabel("Power Fluid Pressure, psi")
+    axs[2].set_ylabel("Oil Rate, bopd")
+    axs[2].grid(True)
+
+    plt.tight_layout()
+    plt.savefig("plots/pf_oil_benefit.png")

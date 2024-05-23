@@ -134,7 +134,7 @@ def plot_bhp_liquidrate(merged_test_scada, RP_guess):
     return coefficients_df
 
 
-def plot_bhp_liquidrate_r2(RP_guess, resp_modifier):
+def plot_bhp_liquidrate_r2(RP_guess, resp_modifier, filename):
     """
     Plot bottomhole pressure vs liquid rate for each well in a grid of scatter plots,
     fit a trend line, display the equation, and store the coefficients.
@@ -160,15 +160,22 @@ def plot_bhp_liquidrate_r2(RP_guess, resp_modifier):
     axs = axs.flatten()
 
     coeffs_list = []
-
     ipr_list = []
 
     for index, well in enumerate(unique_wells):
         try:
             well_data = df[df["well"] == well]
-            well_data = well_data.dropna(subset=["BHP", "WtTotalFluid"])
+            well_data = well_data.dropna(subset=["BHP", "WtTotalFluid", "Optimal_RP"])
+
+            if well_data.empty:
+                print(f"Skipping well {well} due to insufficient data.")
+                continue
 
             optimal_res_p = well_data["Optimal_RP"].iloc[0] + resp_modifier
+
+            if pd.isna(optimal_res_p):
+                print(f"Skipping well {well} due to NaN in Optimal_RP.")
+                continue
 
             scatter = axs[index].scatter(
                 well_data["WtTotalFluid"],
@@ -254,6 +261,7 @@ def plot_bhp_liquidrate_r2(RP_guess, resp_modifier):
             axs[index].set_xlabel("Total Fluid Rate, BPD")
             axs[index].set_title(f"Well {well}")
             axs[index].legend()
+            axs[index].grid(True)
 
             axs[index].set_xlim(left=0)
 
@@ -269,7 +277,7 @@ def plot_bhp_liquidrate_r2(RP_guess, resp_modifier):
         axs[i].axis("off")
 
     plt.tight_layout()
-    plt.savefig("plots/B-pad bhp_liq_grid_latest_test.png")
+    plt.savefig(filename)
 
     coefficients_df = pd.DataFrame(coeffs_list)
     ipr_data = pd.DataFrame(ipr_list)

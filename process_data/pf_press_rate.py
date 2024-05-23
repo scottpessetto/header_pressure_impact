@@ -37,8 +37,6 @@ def interpolate_fluid_newest(well, bhp_value, ipr_df):
     # Filter the ipr_lookup dataframe for the specific well
     well_data = ipr_df[ipr_df["well"] == well]
 
-    print(bhp_value)
-
     well_data["BHP"] = pd.to_numeric(well_data["BHP"], errors="coerce")
     well_data["Fluid_newest"] = pd.to_numeric(well_data["Fluid_newest"], errors="coerce")
 
@@ -48,7 +46,40 @@ def interpolate_fluid_newest(well, bhp_value, ipr_df):
         return np.nan
 
     interpolated_value = np.interp(bhp_value, well_data["BHP"], well_data["Fluid_newest"])
-    print(interpolated_value, bhp_value)
+
+    return interpolated_value
+
+
+def interpolate_fluid_lowest(well, bhp_value, ipr_df):
+    # Filter the ipr_lookup dataframe for the specific well
+    well_data = ipr_df[ipr_df["well"] == well]
+
+    well_data["BHP"] = pd.to_numeric(well_data["BHP"], errors="coerce")
+    well_data["Fluid_lowest"] = pd.to_numeric(well_data["Fluid_lowest"], errors="coerce")
+
+    well_data = well_data.dropna(subset=["BHP", "Fluid_lowest"])
+
+    if well_data.empty:
+        return np.nan
+
+    interpolated_value = np.interp(bhp_value, well_data["BHP"], well_data["Fluid_lowest"])
+
+    return interpolated_value
+
+
+def interpolate_fluid_median(well, bhp_value, ipr_df):
+    # Filter the ipr_lookup dataframe for the specific well
+    well_data = ipr_df[ipr_df["well"] == well]
+
+    well_data["BHP"] = pd.to_numeric(well_data["BHP"], errors="coerce")
+    well_data["Fluid_median"] = pd.to_numeric(well_data["Fluid_median"], errors="coerce")
+
+    well_data = well_data.dropna(subset=["BHP", "Fluid_median"])
+
+    if well_data.empty:
+        return np.nan
+
+    interpolated_value = np.interp(bhp_value, well_data["BHP"], well_data["Fluid_median"])
 
     return interpolated_value
 
@@ -72,6 +103,14 @@ def assign_liquid_rate(ipr_lookup, bhp_lookup):
 
     bhp_lookup["Fluid_newest_interpolated"] = bhp_lookup.apply(
         lambda row: interpolate_fluid_newest(row["Well"], row["bhp"], ipr_lookup), axis=1
+    )
+
+    bhp_lookup["Fluid_lowest_interpolated"] = bhp_lookup.apply(
+        lambda row: interpolate_fluid_lowest(row["Well"], row["bhp"], ipr_lookup), axis=1
+    )
+
+    bhp_lookup["Fluid_median_interpolated"] = bhp_lookup.apply(
+        lambda row: interpolate_fluid_median(row["Well"], row["bhp"], ipr_lookup), axis=1
     )
 
     return bhp_lookup
